@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { stringify } from "querystring"
 import Link from "next/link"
 
 const formSchema = z.object({
@@ -29,7 +30,7 @@ const formSchema = z.object({
 
 
 
-export function SignupForm() {
+export function LoginForm() {
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,12 +40,12 @@ export function SignupForm() {
       password: ""
     },
   })
-
+ 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
     toast({
-      title:"New account created",
-      description: "username " + values.username + " password " + values.password
+      title:"New login",
+      description: "username " + values.username + "\npassword " + values.password
     })
   }
 
@@ -61,7 +62,7 @@ export function SignupForm() {
                 <Input placeholder="storcale" {...field} />
               </FormControl>
               <FormDescription>
-                This is your public display name.
+                Your username
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -81,14 +82,14 @@ export function SignupForm() {
           )}
         />
         <div className="flex gap-4">
-        <Button type="submit">Sign-up</Button>
+        <Button type="submit">Log-in</Button>
         <Link
-          href="/auth/login"
+          href="/auth/signup"
           target="_blank"
           rel="noreferrer"
           className={buttonVariants({ variant: "outline" })}
         >
-          Log-in
+          Sign-up
         </Link>
         </div>
       </form>
