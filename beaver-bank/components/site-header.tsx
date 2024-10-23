@@ -16,9 +16,7 @@ export function SiteHeader() {
         <MainNav items={siteConfig.mainNav} Icons={Icons} />
         <div className="flex flex-1 items-center justify-end space-x-4">
           <nav className="flex items-center space-x-1">
-            <Button variant="outline">
-              <Home /> Dashboard
-            </Button>
+            <Link href="/dashboard" className={buttonVariants({ variant: "outline" })}> <Home /> Dashboard</Link>
             <ThemeToggle />
           </nav>
         </div>

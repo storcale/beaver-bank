@@ -3,20 +3,18 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useRouter } from "next/router"
 import { useToast } from "@/hooks/use-toast"
-
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { stringify } from "querystring"
 import Link from "next/link"
 
 const formSchema = z.object({
@@ -28,10 +26,9 @@ const formSchema = z.object({
   }),
 })
 
-
-
 export function LoginForm() {
   const { toast } = useToast()
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,13 +37,23 @@ export function LoginForm() {
       password: ""
     },
   })
- 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-    toast({
-      title:"New login",
-      description: "username " + values.username + "\npassword " + values.password
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(values)
     })
+
+    if (res.ok) {
+      const data = await res.json()
+      toast({ title: "Login successful!" })
+      router.push("/dashboard") // Redirect to dashboard
+    } else {
+      toast({ title: "Login failed!", description: "Invalid username or password" })
+    }
   }
 
   return (
@@ -61,9 +68,6 @@ export function LoginForm() {
               <FormControl>
                 <Input placeholder="storcale" {...field} />
               </FormControl>
-              <FormDescription>
-                Your username
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -75,22 +79,22 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="" {...field} />
+                <Input type="password" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <div className="flex gap-4">
-        <Button type="submit">Log-in</Button>
-        <Link
-          href="/auth/signup"
-          target="_blank"
-          rel="noreferrer"
-          className={buttonVariants({ variant: "outline" })}
-        >
-          Sign-up
-        </Link>
+          <Button type="submit">Log-in</Button>
+          <Link
+            href="/auth/signup"
+            target="_blank"
+            rel="noreferrer"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Sign-up
+          </Link>
         </div>
       </form>
     </Form>

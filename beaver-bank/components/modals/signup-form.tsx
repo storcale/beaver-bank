@@ -1,52 +1,66 @@
-"use client"
-
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { useToast } from "@/hooks/use-toast"
-
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useToast } from '@/hooks/use-toast';
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import Link from "next/link"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
 
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  password: z.string().min(5, {
-    message: "Password should be at least 5 characters.",
-  }),
-})
-
-
+  username: z.string().min(2, { message: "Username must be at least 2 characters." }),
+  password: z.string().min(5, { message: "Password must be at least 5 characters." })
+});
 
 export function SignupForm() {
   const { toast } = useToast()
-
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      password: ""
-    },
-  })
+    defaultValues: { username: "", password: "" }
+  });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-    toast({
-      title:"New account created",
-      description: "username " + values.username + " password " + values.password
-    })
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("Sent signup request");
+  
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        toast({
+          title: "New account created",
+          description: "Account created successfully.",
+        });
+        console.log("Account created", data);
+      } else {
+        toast({
+          title: "Error",
+          description: data.error || "An error occurred during signup.",
+        });
+        console.error("Error:", data.error);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+      toast({
+        title: "Network Error",
+        description: "Unable to reach the server.",
+      });
+    }
   }
+  
 
   return (
     <Form {...form}>
@@ -93,5 +107,5 @@ export function SignupForm() {
         </div>
       </form>
     </Form>
-  )
+  );
 }
